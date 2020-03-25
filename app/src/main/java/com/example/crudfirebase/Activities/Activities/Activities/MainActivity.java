@@ -6,19 +6,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.crudfirebase.Activities.Activities.Activities.Models.Persona;
 import com.example.crudfirebase.R;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+
+    private List<Persona> listPersona = new ArrayList<Persona>();
+    ArrayAdapter<Persona> arrayAdapterPersona;
 
     EditText etNombres, etApellidos, etCorreo, etPassword;
     ListView lvPersonas;//crear los objetos equivalentes al diseño
@@ -37,6 +47,31 @@ public class MainActivity extends AppCompatActivity {
         etPassword = (EditText)findViewById(R.id.etPasswordPersona);
         lvPersonas = (ListView)findViewById(R.id.lvDatosPersonas);
         inicializarFirebase();
+        
+        listarDatos();
+    }
+
+    private void listarDatos() {
+        databaseReference.child("Persona").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                listPersona.clear();//limpiamos por si tiene datos
+                for (DataSnapshot objSnapshot: dataSnapshot.getChildren()){
+                    Persona persona = objSnapshot.getValue(Persona.class);//creamos un objeto de la clase modelo persona y obtenemos los datos de la clase persona
+                    listPersona.add(persona);//agregamos los datos en la lista
+
+                    arrayAdapterPersona = new ArrayAdapter<Persona>(getApplicationContext(),R.layout.listview_style,listPersona);
+                    lvPersonas.setAdapter(arrayAdapterPersona);
+
+                    //al abrir la app vemos que nos lista las personas por el nombre pero en realidad allí estan todos los datos de la persona solo que en la clase
+                    //modelo al final en el metodo toString le decimos que nos retorne el nombre por esto lista por nombres si pusieramos por ejemplo que retornará
+                    //el correo listaria por correo y no por nombre
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     private void inicializarFirebase() {
