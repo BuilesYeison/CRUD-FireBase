@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CRUDfirebase</string>
+    <string name="main_Nombres">Nombres</string>
+    <string name="main_Apellidos">Apellidos</string>
+    <string name="main_Correo">Correo</string>
+    <string name="main_Password">Password</string>
+    <string name="main_ListaPersonasTXT">Lista de Personas</string>
+</resources>
