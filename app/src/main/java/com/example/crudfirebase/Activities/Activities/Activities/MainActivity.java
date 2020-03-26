@@ -109,13 +109,13 @@ public class MainActivity extends AppCompatActivity {
         sApellidos = etApellidos.getText().toString();
         sCorreo = etCorreo.getText().toString();
         sPassword = etPassword.getText().toString();
+        Persona persona = new Persona();//creamos un objeto de la clase modelo persona para actualizar, insertar y eliminar
 
         switch(item.getItemId()){
             case R.id.iconAdd://cuando le de click al icono de agregar
                 if(validacion(sNombres, sApellidos, sCorreo, sPassword) == true){//creo un metodo donde le paso todos los strings, este metodo me verifica si estan vacios o llenos
                     toastMessage("Informacion agregada");//mostramos en un toast
 
-                    Persona persona = new Persona();//creamos una instancia de la clase modelo persona
                     persona.setuId(UUID.randomUUID().toString());//agregamos a nuestro objeto una id random automatica
                     persona.setNombre(sNombres);//agregamos el resto de informacion a nuestro objeto
                     persona.setApellidos(sApellidos);
@@ -131,11 +131,12 @@ public class MainActivity extends AppCompatActivity {
 
 
             case R.id.iconDelete:
-
+                persona.setuId(personaSeleccionada.getuId());//obtenemos el id de la persona seleccionada
+                databaseReference.child("Persona").child(persona.getuId()).removeValue();//vamos a la tabla Persona en la base de datos y seleccionamos el nodo que tiene el id que seleccionó el usuario y removemos todos los datos
+                limpiarCampos();
                 break;
 
             case R.id.iconSave://actualizar datos
-                Persona persona = new Persona();//creamos un objeto de persona que actualizará los datos nuevos
                 persona.setuId(personaSeleccionada.getuId());//el id siempre será igual para poder actualizar correctamente
                 persona.setNombre(etNombres.getText().toString().trim());//obtenemos el dato nuevo deledittext y lo actualizamos en la base de datos
                 persona.setApellidos(etApellidos.getText().toString().trim());//el trim ignora los espacios en blanco
