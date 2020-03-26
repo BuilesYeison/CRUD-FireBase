@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     ListView lvPersonas;//crear los objetos equivalentes al diseño
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
+    Persona personaSeleccionada;
 
 
     @Override
@@ -49,6 +52,17 @@ public class MainActivity extends AppCompatActivity {
         inicializarFirebase();
         
         listarDatos();
+
+        lvPersonas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                personaSeleccionada = (Persona) parent.getItemAtPosition(position);//cuando el usuario presioné en un item del listview obtenemos su posicion y los datos de esa persona  que presionó
+                etNombres.setText(personaSeleccionada.getNombre());//ponemos en nuestros campos edittext los datos de la persona que el usuario presionó
+                etApellidos.setText(personaSeleccionada.getApellidos());
+                etCorreo.setText(personaSeleccionada.getCorreo());
+                etPassword.setText(personaSeleccionada.getPassword());
+            }
+        });
     }
 
     private void listarDatos() {
@@ -77,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private void inicializarFirebase() {
         FirebaseApp.initializeApp(this);//inicializamos firebase app
         firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.setPersistenceEnabled(true);
         databaseReference = firebaseDatabase.getReference();
     }
 
@@ -119,8 +134,16 @@ public class MainActivity extends AppCompatActivity {
 
                 break;
 
-            case R.id.iconSave:
-
+            case R.id.iconSave://actualizar datos
+                Persona persona = new Persona();//creamos un objeto de persona que actualizará los datos nuevos
+                persona.setuId(personaSeleccionada.getuId());//el id siempre será igual para poder actualizar correctamente
+                persona.setNombre(etNombres.getText().toString().trim());//obtenemos el dato nuevo deledittext y lo actualizamos en la base de datos
+                persona.setApellidos(etApellidos.getText().toString().trim());//el trim ignora los espacios en blanco
+                persona.setCorreo(etCorreo.getText().toString().trim());
+                persona.setPassword(etApellidos.getText().toString().trim());
+                databaseReference.child("Persona").child(persona.getuId()).setValue(persona);//accedemos a nuestro nodo Persona y donde esta la id de la persona que vamos a actualizar pasamos los datos que estan en ese mismo objeto persona
+                toastMessage("Actualizado correctamente");
+                limpiarCampos();
                 break;
         }
 
